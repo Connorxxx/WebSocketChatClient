@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">WebSocketChatClient</string>
+    <string name="connect">Connect</string>
+    <string name="enter_server_url">Enter server URL</string>
+    <string name="send">SEND</string>
+    <string name="input_message">Input Message</string>
 </resources>

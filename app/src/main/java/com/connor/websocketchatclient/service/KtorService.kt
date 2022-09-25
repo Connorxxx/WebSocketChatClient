@@ -8,14 +8,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.connor.websocketchatclient.MainActivity
 import com.connor.websocketchatclient.R
 import com.connor.websocketchatclient.ktor.inputMessages
 import com.connor.websocketchatclient.ktor.outputMessages
+import com.connor.websocketchatclient.tools.showToast
+import com.drake.channel.sendTag
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
-import io.ktor.http.*
 import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
 
@@ -24,9 +26,8 @@ class KtorService : Service() {
     private val ioDispatcher: CoroutineDispatcher by inject()
     private val client: HttpClient by inject()
 
-    private val job = Job()
-    private val ioScope = CoroutineScope(ioDispatcher + job)
-
+    private val job by lazy { Job() }
+    private val ioScope by lazy { CoroutineScope(ioDispatcher + job) }
 
     override fun onCreate() {
         super.onCreate()
@@ -48,13 +49,19 @@ class KtorService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val url = intent?.getStringExtra("URL") ?: ""
         ioScope.launch {
-            client.webSocket(
-                method = HttpMethod.Get, host = "127.0.0.1", port = 19980, path = "/chat"
-            ) {
-                inputMessages()
-                outputMessages()
-                // messageOutputRoutine.cancelAndJoin()
+            kotlin.runCatching {
+                client.webSocket(url) {
+                    inputMessages()
+                    outputMessages()
+                }
+            }.onFailure {
+                Log.e("onFailure", "onStartCommand: ${it.localizedMessage}", )
+                launch(Dispatchers.Main) {
+                    "ERROR".showToast()
+                    stopSelf()
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -66,6 +73,7 @@ class KtorService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        client.close()
+        sendTag("serverStop")
+        job.cancel()
     }
 }

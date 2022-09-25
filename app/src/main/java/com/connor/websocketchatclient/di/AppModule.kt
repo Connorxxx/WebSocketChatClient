@@ -2,6 +2,8 @@ package com.connor.websocketchatclient.di
 
 import com.connor.websocketchatclient.vm.MainViewModel
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.websocket.*
 import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -15,7 +17,7 @@ val appModule = module {
 
 }
 
-fun client() = HttpClient {
+fun client() = HttpClient(CIO) {
     install(WebSockets)
 }
 
