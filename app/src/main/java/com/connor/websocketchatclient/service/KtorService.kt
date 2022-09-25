@@ -15,6 +15,7 @@ import com.connor.websocketchatclient.R
 import com.connor.websocketchatclient.ktor.inputMessages
 import com.connor.websocketchatclient.ktor.outputMessages
 import com.connor.websocketchatclient.tools.showToast
+import com.drake.channel.receiveEventHandler
 import com.drake.channel.sendTag
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
@@ -55,6 +56,7 @@ class KtorService : Service() {
                 client.webSocket(url) {
                     inputMessages()
                     outputMessages()
+                    incoming.receive()
                 }
             }.onFailure {
                 Log.e("onFailure", "onStartCommand: ${it.localizedMessage}", )

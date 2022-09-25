@@ -21,8 +21,6 @@ suspend fun DefaultClientWebSocketSession.outputMessages() {
 }
 
 suspend fun DefaultClientWebSocketSession.inputMessages() {
-        val message = readLine() ?: ""
-        if (message.equals("exit", true)) return
         kotlin.runCatching {
             receiveEventHandler<String>("sendText") {
                 outgoing.send(Frame.Text(it))
