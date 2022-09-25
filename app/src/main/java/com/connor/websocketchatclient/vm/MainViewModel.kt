@@ -3,6 +3,7 @@ package com.connor.websocketchatclient.vm
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.connor.websocketchatclient.models.ChatMessage
+import com.drake.serialize.serialize.serialLazy
 
 class MainViewModel : ViewModel() {
 
@@ -11,6 +12,9 @@ class MainViewModel : ViewModel() {
     }
 
     val liveData = MutableLiveData<Boolean>()
+
+    var url: String? by serialLazy()
+    var content: String? by serialLazy()
 
     fun getIsConnect() = isConnect
 

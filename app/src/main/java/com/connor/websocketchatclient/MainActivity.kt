@@ -3,7 +3,9 @@ package com.connor.websocketchatclient
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import com.connor.websocketchatclient.databinding.ActivityMainBinding
 import com.connor.websocketchatclient.models.ChatMessage
@@ -42,15 +44,21 @@ class MainActivity : AppCompatActivity() {
         receiveTag("serverStop") {
             viewModel.setIsConnect(false)
         }
-        binding.btnConnect.setOnClickListener {
-            if (!viewModel.getIsConnect()) {
-                startService<KtorService> {
-                    putExtra("URL", binding.editURL.text.toString())
-                }
-                viewModel.setIsConnect(true)
-            } else {
-                stopService<KtorService> {}
-            }
+        viewModel.url?.let {
+            binding.editURL.setText(it)
+        }
+        viewModel.content?.let {
+            binding.etMsg.setText(it)
+            binding.btnSend.visibility = View.VISIBLE
+        }
+        initVIewListener()
+    }
+
+    private fun initVIewListener() {
+        binding.etMsg.addTextChangedListener {
+            viewModel.content = it.toString()
+            if (it.isNullOrEmpty()) binding.btnSend.visibility = View.GONE
+            else binding.btnSend.visibility = View.VISIBLE
         }
         binding.btnSend.setOnClickListener {
             val msg = binding.etMsg.text.toString()
@@ -60,6 +68,18 @@ class MainActivity : AppCompatActivity() {
                 scrollToPosition(binding.rv.adapter!!.itemCount - 1)
             }
             binding.etMsg.setText("")
+        }
+        binding.btnConnect.setOnClickListener {
+            if (!viewModel.getIsConnect()) {
+                val url = binding.editURL.text.toString()
+                startService<KtorService> {
+                    putExtra("URL", url)
+                }
+                viewModel.url = url
+                viewModel.setIsConnect(true)
+            } else {
+                stopService<KtorService> {}
+            }
         }
     }
 
